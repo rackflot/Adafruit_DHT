@@ -5,6 +5,8 @@ import time
 import board
 import adafruit_dht
 from datetime import datetime
+import sys
+import mariadb
 
 
 def GetTimeStamp():
