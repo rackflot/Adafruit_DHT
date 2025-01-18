@@ -1,9 +1,17 @@
 # Module Imports
 import sys
 import mariadb
+from tabulate import tabulate
 # DB1
 # Connect to MariaDB Platform
 
+def print_action_tbl():
+    sql = "SELECT * FROM actions"
+    cursor.execute(sql)
+    myresult = cursor.fetchall()
+    
+    print(tabulate(myresult, headers=['time', 'temp', 'humid', 'speed'],tablefmt='psql'))
+    
 def add_data(time, temp, humid, speed):
     try:
         statement = "INSERT INTO actions(time, temp, humid, speed) VALUES (?,?,?,?)"
@@ -44,7 +52,9 @@ cursor = conn.cursor()
 add_data(1,2,3,4)
 add_data(5,6,7,8)
 
-get_data()
+# get_data()
+print_action_tbl()
+#print_action2()
 
 
 # close it down
