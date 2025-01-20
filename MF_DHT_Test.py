@@ -28,6 +28,18 @@ while True:
     try:
         # Print the values to the serial port
         temperature_c = dhtDevice.temperature
+        
+    except RuntimeError as error:
+        # Errors happen fairly often, DHT's are hard to read, just keep going
+        print(error.args[0])
+        time.sleep(2.0)    
+        continue
+    except Exception as error:
+        dhtDevice.exit()
+        raise error
+    except:
+        print(error.args[0])
+    else:
         temperature_f = temperature_c * (9 / 5) + 32
         humidity = dhtDevice.humidity
 
@@ -37,17 +49,6 @@ while True:
             ) + " " + GetTimeStamp()
         )
 
-        dbh.add_data(1, temperature_f, humidity, 2)
-        dbh.add_data(1,2,3,4)
+        dbh.add_data(GetTimeStamp(), temperature_f, humidity, 2)
         
-    
-    except RuntimeError as error:
-        # Errors happen fairly often, DHT's are hard to read, just keep going
-        print(error.args[0])
-        time.sleep(2.0)
-        continue
-    except Exception as error:
-        dhtDevice.exit()
-        raise error
-
-    time.sleep(2.0)
+        time.sleep(1.0)    

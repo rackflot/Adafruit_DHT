@@ -37,6 +37,7 @@ class iDHT_DB:
             statement = "INSERT INTO actions(time, temp, humid, speed) VALUES (?,?,?,?)"
             data = (time, temp, humid, speed)
             self.cursor.execute(statement, data)
+            self.conn.commit()
             print("successfully added to database")
         except mariadb.Error as e:
             print (f"Error adding entry to databases {e}") 
