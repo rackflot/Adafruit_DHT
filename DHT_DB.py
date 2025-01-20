@@ -5,57 +5,82 @@ from tabulate import tabulate
 # DB1
 # Connect to MariaDB Platform
 
-def print_action_tbl():
-    sql = "SELECT * FROM actions"
-    cursor.execute(sql)
-    myresult = cursor.fetchall()
-    
-    print(tabulate(myresult, headers=['time', 'temp', 'humid', 'speed'],tablefmt='psql'))
-    
-def add_data(time, temp, humid, speed):
-    try:
-        statement = "INSERT INTO actions(time, temp, humid, speed) VALUES (?,?,?,?)"
-        data = (time, temp, humid, speed)
-        cursor.execute(statement, data)
-        print("successfully added to database")
-    except mariadb.Error as e:
-       print (f"Error adding entry to databazES {e}") 
+class iDHT_DB:
+    def __init__(self):
+        self.conn = 0
+        self.cursor = 0
+                
+        try:
+            self.conn = mariadb.connect(
+            user="pi",
+            password="flicket",
+            host="localhost",
+            port=3306,
+            database="fan"
+        )
+            self.cursor = self.conn.cursor()
+        except mariadb.Error as e:
+            print(f"Error connecting to MariaDB Platform: {e}")
+            sys.exit(1)
 
-def get_data():
-    try:
-      statement = (f"SELECT * FROM actions")          
-      cursor.execute(statement)
-      conn.commit()
-      # results  =  cursor.fetchall()
-      # row = cursor.fetchone()
-      for row in cursor.fetchall():
-        print (row, sep=' ')
-      
-    except mariadb.Error as e:
-      print(f"Error retrieving entry from database: {e}")
+# ------------------------------------------------------------------------------
 
+    def print_action_tbl(self):
+        sql = "SELECT * FROM actions"
+        self.cursor.execute(sql)
+        myresult = self.cursor.fetchall()
+        print(tabulate(myresult, headers=['time', 'temp', 'humid', 'speed'],tablefmt='psql'))
+ # ------------------------------------------------------------------------------       
+ 
+    def add_data(self, time, temp, humid, speed):
+        try:
+            statement = "INSERT INTO actions(time, temp, humid, speed) VALUES (?,?,?,?)"
+            data = (time, temp, humid, speed)
+            self.cursor.execute(statement, data)
+            print("successfully added to database")
+        except mariadb.Error as e:
+            print (f"Error adding entry to databases {e}") 
+# ------------------------------------------------------------------------------
 
-try:
-    conn = mariadb.connect(
-        user="pi",
-        password="flicket",
-        host="localhost",
-        port=3306,
-        database="fan"
-    )
-except mariadb.Error as e:
-    print(f"Error connecting to MariaDB Platform: {e}")
-    sys.exit(1)
+    def get_data(self):
+        try:
+            statement = (f"SELECT * FROM actions")          
+            self.cursor.execute(statement)
+            self.conn.commit()
+            # results  =  cursor.fetchall()
+            # row = cursor.fetchone()
+            for row in self.cursor.fetchall():
+                print (row, sep=' ')        
+        except mariadb.Error as e:
+            print(f"Error retrieving entry from database: {e}")
 
-cursor = conn.cursor()
+# ------------------------------------------------------------------------------
 
-add_data(1,2,3,4)
-add_data(5,6,7,8)
+    def get_columns(self):
+        try:
+            statement = (f"SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS  WHERE table_name = 'actions';")          
+            self.cursor.execute(statement)
+            self.conn.commit()
+            # results  =  cursor.fetchall()
+            # row = cursor.fetchone()
+            for row in self.cursor.fetchall():
+                print (row, sep=' ')        
+        except mariadb.Error as e:
+            print(f"Error retrieving entry from database: {e}")
+# ------------------------------------------------------------------------------
+# test the class
+"""
+dbh = iDHT_DB()
 
-# get_data()
-print_action_tbl()
-#print_action2()
+dbh.print_action_tbl()
 
+dbh.add_data(1,2,3,4)
+dbh.add_data(5,6,7,8)
 
-# close it down
-cursor.close()
+#dbh.get_data()
+dbh.get_columns()
+
+dbh.print_action_tbl()
+
+dbh.cursor.close()
+"""

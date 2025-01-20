@@ -7,7 +7,7 @@ import adafruit_dht
 from datetime import datetime
 import sys
 import mariadb
-
+from DHT_DB import *
 
 def GetTimeStamp():
     # timestamp = 1528797322
@@ -17,6 +17,7 @@ def GetTimeStamp():
 
 # Initial the dht device, with data pin connected to:
 dhtDevice = adafruit_dht.DHT22(board.D4)
+dbh = iDHT_DB()
 
 # you can pass DHT22 use_pulseio=False if you wouldn't like to use pulseio.
 # This may be necessary on a Linux single board computer like the Raspberry Pi,
@@ -30,13 +31,16 @@ while True:
         temperature_f = temperature_c * (9 / 5) + 32
         humidity = dhtDevice.humidity
 
-
         print(
             "Temp: {:.1f} F / {:.1f} C    Humidity: {}% ".format(
                 temperature_f, temperature_c, humidity
             ) + " " + GetTimeStamp()
         )
 
+        dbh.add_data(1, temperature_f, humidity, 2)
+        dbh.add_data(1,2,3,4)
+        
+    
     except RuntimeError as error:
         # Errors happen fairly often, DHT's are hard to read, just keep going
         print(error.args[0])
