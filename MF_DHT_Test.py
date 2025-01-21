@@ -23,7 +23,7 @@ dbh = iDHT_DB()
 # This may be necessary on a Linux single board computer like the Raspberry Pi,
 # but it will not work in CircuitPython.
 # dhtDevice = adafruit_dht.DHT22(board.D18, use_pulseio=False)
-
+ 
 while True:
     try:
         # Print the values to the serial port
