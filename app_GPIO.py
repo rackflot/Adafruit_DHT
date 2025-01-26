@@ -3,7 +3,7 @@
 '''
 import RPi.GPIO as GPIO
 from flask import Flask, render_template, request
-app = Flask(__name__)
+app = Flask(__name__) 
 
 # setup gpio lines
 GPIO.setmode(GPIO.BCM)
