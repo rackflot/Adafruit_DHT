@@ -3,6 +3,12 @@
 		{
 			"name": "Adafruit_DHT",
 			"path": "."
+		},
+		{
+			"path": "static"
+		},
+		{
+			"path": "templates"
 		}
 	]
 }

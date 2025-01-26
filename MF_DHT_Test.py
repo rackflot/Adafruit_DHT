@@ -32,6 +32,7 @@ cError = "" # get the error string and store it in the db
 #loop on getting data, storing data and blink LED 
 while True:
     try:
+        temperature_c = temperature_f = humidity = 0
         GPIO.output(18,GPIO.HIGH)     
         temperature_c = dhtDevice.temperature
         humidity = dhtDevice.humidity
@@ -61,5 +62,5 @@ while True:
         
         #LED goes low for a second
         GPIO.output(18,GPIO.LOW)
-        time.sleep(1.0)    
+        time.sleep(2.0)    
         # End of While True loop
