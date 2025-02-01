@@ -2,35 +2,17 @@
 	Raspberry Pi GPIO Status and Control
 '''
 import RPi.GPIO as GPIO
+from led import *
 from flask import Flask, render_template, request
 app = Flask(__name__)
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
 
-#define actuators GPIOs
-ledRed = 18
-# ledYlw = 19
-# ledGrn = 26
+# create instance of the LED to control on pin 18
+Led = LED_Ctrl(18)
 
-#initialize GPIO status variables
-ledRedSts = 0
-# ledYlwSts = 0
-# ledGrnSts = 0
-
-# Define led pins as output
-GPIO.setup(ledRed, GPIO.OUT)   
-# GPIO.setup(ledYlw, GPIO.OUT) 
-# GPIO.setup(ledGrn, GPIO.OUT) 
-
-# turn leds OFF 
-GPIO.output(ledRed, GPIO.LOW)
-# GPIO.output(ledYlw, GPIO.LOW)
-# GPIO.output(ledGrn, GPIO.LOW)
-	
+# Start of Flask
 @app.route("/")
-def index():
-	# Read Sensors Status
-	ledRedSts = GPIO.input(ledRed)
+def index_app_GPIO2():	# Read Sensors Status
+	ledRedSts = Led.LED_Status()    
 # 	ledYlwSts = GPIO.input(ledYlw)
 # 	ledGrnSts = GPIO.input(ledGrn)
 	templateData = {
@@ -43,19 +25,22 @@ def index():
 	
 @app.route("/<deviceName>/<action>")
 def action(deviceName, action):
-	if deviceName == 'ledRed':
-		actuator = ledRed
+	#if deviceName == 'ledRed':
+	#	actuator = ledRed
 # 	if deviceName == 'ledYlw':
 # 		actuator = ledYlw
 # 	if deviceName == 'ledGrn':
 # 		actuator = ledGrn
    
 	if action == "on":
-		GPIO.output(actuator, GPIO.HIGH)
+		Led.LED_Action("on")
+		# GPIO.output(actuator, GPIO.HIGH)
 	if action == "off":
-		GPIO.output(actuator, GPIO.LOW)
-		     
-	ledRedSts = GPIO.input(ledRed)
+		Led.LED_Action("off")	
+  		# GPIO.output(actuator, GPIO.LOW)
+
+	ledRedSts = Led.LED_Status()    		     
+	#ledRedSts = GPIO.input(ledRed)
 # 	ledYlwSts = GPIO.input(ledYlw)
 # 	ledGrnSts = GPIO.input(ledGrn)
    

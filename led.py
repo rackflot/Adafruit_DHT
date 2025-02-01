@@ -2,14 +2,34 @@ import RPi.GPIO as GPIO
 import time
 
 
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
-GPIO.setup(18,GPIO.OUT)
-    
-while True:    
-    print ("LED on")
-    GPIO.output(18,GPIO.HIGH)
-    time.sleep(.100)
-    print ("LED off")
-    GPIO.output(18,GPIO.LOW)
-    time.sleep(.1)
+class LED_Ctrl:
+    def __init__(self, iPin):
+        self.LED_State = 0   
+        self.iPin = iPin
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setwarnings(False)
+        GPIO.setup(self.iPin, GPIO.OUT)
+        GPIO.output(self.iPin, GPIO.LOW)
+	
+        
+
+
+    def LED_Action(self, action):
+        if action == "on":
+            GPIO.output(self.iPin, GPIO.HIGH)
+            self.LED_State = 1
+        if action == "off":
+            GPIO.output(self.iPin, GPIO.LOW)
+            self.LED_State = 0
+        
+    def LED_Status(self):
+        # Read Sensors Status
+        self.LED_State  = GPIO.input(self.iPin)
+        return self.LED_State
+
+mf = LED_Ctrl(18)
+
+mf.LED_Status()    
+mf.LED_Action("on")
+mf.LED_Status()    
+
