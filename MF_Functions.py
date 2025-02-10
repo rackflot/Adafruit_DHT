@@ -99,6 +99,6 @@ if __name__ == '__main__':
 	fEppochTime = time.time()
 	print("epoctime: "+ str(fEppochTime))
 	print(time.ctime(fEppochTime))
-	print("sGetTimeStamp():"+sGetTimeStamp())
+	print("GetTimeStamp():" + GetTimeStamp())
 	print("--------------------------------------------------------------")
 	
