@@ -31,13 +31,13 @@ class iDHT_DB:
         sql = "SELECT * FROM actions"
         self.cursor.execute(sql)
         myresult = self.cursor.fetchall()
-        print(tabulate(myresult, headers=['time', 'temp', 'humid', 'speed', 'cError'],tablefmt='psql'))
+        print(tabulate(myresult, headers=['itime', 'temp', 'ihumid', 'speed', 'cError'],tablefmt='psql'))
  # ------------------------------------------------------------------------------       
  
-    def add_data(self, time, temp, humid, speed, cError):
+    def add_data(self, itime, itemp, ihumid, speed, cError):
         try:
-            statement = "INSERT INTO actions(time, temp, humid, speed, error) VALUES (?,?,?,?,?)"
-            data = (time, temp, humid, speed, cError)
+            statement = "INSERT INTO actions(itime, itemp, ihumid, speed, error) VALUES (?,?,?,?,?)"
+            data = (itime, itemp, ihumid, speed, cError)
             self.cursor.execute(statement, data)
             self.conn.commit()
             print("successfully added to database")
