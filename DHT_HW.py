@@ -54,7 +54,7 @@ class iDHT_DH:
             # Errors happen fairly often, DHT's are hard to read, just keep going
             self.DHT_Error = error.args[0]
             print(self.DHT_Error)
-            time.sleep(2.0)    
+            # time.sleep(2.0)    
         #continue
         except Exception as error:
             dhtDevice.exit()
@@ -64,7 +64,7 @@ class iDHT_DH:
             print(error.args[0])
         else:
             print("final else in ReadDHT, led OFF")
-            GPIO.output(18,GPIO.HIGH)     
+            GPIO.output(18,GPIO.LOW)     
         
         if(self.Debug):
             print("Temp: {:.1f} F / {:.1f} C    Humidity: {}% ".format(

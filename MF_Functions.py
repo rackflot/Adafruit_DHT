@@ -18,6 +18,7 @@ def GetTimeStamp():
     date_time = datetime.fromtimestamp(timestamp)
     return date_time.strftime("%a %d%b%y %I:%M:%S %p")    
 
+#def GetDHTDate
 # Return CPU temperature as a character string                                      
 def getCPUtemperature():
 	res = os.popen('vcgencmd measure_temp').readline()

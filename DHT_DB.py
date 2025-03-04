@@ -10,6 +10,7 @@ import io
 import sqlite3
 
 
+
 class iDHT_DB:
     def __init__(self):
         self.conn = 0
@@ -19,7 +20,7 @@ class iDHT_DB:
         try:
             self.conn = sqlite3.connect('/home/pi/Adafruit_DHT/FanData.db', check_same_thread = False)
             self.curs = self.conn.cursor()         
-            self.MaxRows = self.maxRowsTable()
+            # self.MaxRows = self.maxRowsTable()
             
         except Exception as e:
             print(f"Error connecting to MariaDB Platform: {e}")
@@ -63,7 +64,7 @@ class iDHT_DB:
 # ------------------------------------------------------------------------------
 # Get Max number of rows (table size)
     def maxRowsTable(self):
-        for row in self.curs.execute("select COUNT(temp) from  DHT_data"):
+        for row in self.curs.execute("select COUNT(temp) from fan_data"):
             maxNumberRows=row[0]
         return maxNumberRows
 
@@ -72,7 +73,7 @@ class iDHT_DB:
     def getLastData(self):
         for row in self.curs.execute("SELECT * FROM fan_data ORDER BY timestamp DESC LIMIT 1"):
             time = str(row[0])
-            temp = row[1]
+            temp = round(row[1],2) #row[1]
             hum = row[2]
         #conn.close()
         return time, temp, hum
@@ -80,6 +81,7 @@ class iDHT_DB:
 # ------------------------------------------------------------------------------
 # Get 'x' samples of historical data
     def getHistData (self, numSamples):
+        
         self.curs.execute("SELECT * FROM fan_data ORDER BY timestamp DESC LIMIT "+str(numSamples))
         data = self.curs.fetchall()
         dates = []
@@ -89,7 +91,7 @@ class iDHT_DB:
             dates.append(row[0])
             temps.append(row[1])
             hums.append(row[2])
-            temps, hums = testeData(temps, hums)
+            temps, hums = self.testeData(temps, hums)
         return dates, temps, hums
     
 # ------------------------------------------------------------------------------
@@ -105,18 +107,12 @@ class iDHT_DB:
 
 # ------------------------------------------------------------------------------
 # Get Max number of rows (table size)
-    def maxRowsTable(self):
-        for row in self.curs.execute("select COUNT(temp) from fan_data"):
-            maxNumberRows=row[0]
-        return maxNumberRows
+def maxRowsTable(self):
+	for row in self.curs.execute("select COUNT(temp) from fan_data"):
+		maxNumberRows=row[0]
+	return maxNumberRows
 
-# ------------------------------------------------------------------------------
-# define and initialize global variables
-global numSamples
-# numSamples = int( round(maxRowsTable()))
-numSamples = 5
-if (numSamples > 101):
-        numSamples = 100
+
 
 # ------------------------------------------------------------------------------
 

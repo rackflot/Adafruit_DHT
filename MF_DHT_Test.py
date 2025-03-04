@@ -33,6 +33,32 @@ dbh     = iDHT_DB()
 DHT     = iDHT_DH()
 GPIO    = iDHT_GPIO()
 
+# Functions
+# ------------------------------------------------------------------------------
+# Get sample frequency in minutes
+def freqSample():
+	times, temps, hums = dbh.getHistData (2)
+	# timediff = time[1] - time[0]
+#	fmt = '%Y-%m-%d %H:%M:%S'
+#	fmt = '%d%m%y %H:%M:%S %p'
+	fmt = "%a %d%b%y %I:%M:%S %p"
+	tstamp0 = datetime.strptime(times[0], fmt)
+	tstamp1 = datetime.strptime(times[1], fmt)
+	freq = tstamp1-tstamp0
+	freq = int(round(freq.total_seconds()/60))
+	return (freq)
+
+# ------------------------------------------------------------------------------
+# define and initialize global variables
+global numSamples
+numSamples = int( round(dbh.maxRowsTable()))
+# numSamples = 5
+if (numSamples > 101):
+        numSamples = 100
+    
+global freqSamples
+freqSamples = freqSample()
+
 # variables
 cError = "" # get the error string and store it in the db
 #loop on getting data, storing data and blink LED 
@@ -46,6 +72,9 @@ dbh.add_data(GetTimeStamp(), DHT.temp_f, DHT.humidity, 4, "none")
 # main route 
 @app.route("/")
 def index():
+	print("-|-|-|-|-|-|-|-| entering index")
+	freqSamples = 5
+	rangeTime = 10
 	time, temp, hum = dbh.getLastData()
 	templateData = {
 	  'time'		: time,
@@ -59,14 +88,16 @@ def index():
 
 @app.route('/', methods=['POST'])
 def my_form_post():
+    print("-|-|-|-|-|-|-|-| entering my_form_post")
     global numSamples 
     global freqSamples
     global rangeTime
-    ifreqSamples = int(freqSamples.seconds)
-    rangeTime = int (request.form['rangeTime'])
-    if (rangeTime < ifreqSamples):
-        rangeTime = ifreqSamples + 1
-    numSamples = int(round(rangeTime/ifreqSamples))
+    # ifreqSamples = 5 #int(freqSamples.seconds)
+    # rangeTime = 10 #int (request.form['rangeTime'])
+    
+    if (rangeTime < freqSamples):
+        rangeTime = freqSamples + 1
+    numSamples = int(round(rangeTime/freqSamples))
     numMaxSamples = maxRowsTable()
     if (numSamples > numMaxSamples):
         numSamples = (numMaxSamples-1)
@@ -85,7 +116,8 @@ def my_form_post():
 	
 @app.route('/plot/temp')
 def plot_temp():
-	times, temps, hums = getHistData(numSamples)
+	print("-|-|-|-|-|-|-|-| entering plot temp")
+	times, temps, hums = dbh.getHistData(numSamples)
 	ys = temps
 	fig = Figure()
 	axis = fig.add_subplot(1, 1, 1)
@@ -103,7 +135,8 @@ def plot_temp():
 
 @app.route('/plot/hum')
 def plot_hum():
-	times, temps, hums = getHistData(numSamples)
+	print("-|-|-|-|-|-|-|-| entering plot hum")
+	times, temps, hums = dbh.getHistData(numSamples)
 	ys = hums
 	fig = Figure()
 	axis = fig.add_subplot(1, 1, 1)
