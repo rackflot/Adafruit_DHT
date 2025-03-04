@@ -6,61 +6,119 @@ import board
 import adafruit_dht
 from datetime import datetime
 import sys
-import mariadb
+# import mariadb
 from DHT_DB import *
+from DHT_HW import *
+
 from MF_Functions import *
 import RPi.GPIO as GPIO
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
+import io
+
+from flask import Flask, render_template, send_file, make_response, request
+app = Flask(__name__)
 
 # you can pass DHT22 use_pulseio=False if you wouldn't like to use pulseio.
 # This may be necessary on a Linux single board computer like the Raspberry Pi,
 # but it will not work in CircuitPython.
 # dhtDevice = adafruit_dht.DHT22(board.D4, use_pulseio=False)
 # Initial the dht device, with data pin connected to:
-dhtDevice = adafruit_dht.DHT22(board.D4)
+# dhtDevice = adafruit_dht.DHT22(board.D4)
 #dhtDevice = adafruit_dht.DHT22(board.D4, use_pulseio=False)
 
-# Maria database object
-dbh = iDHT_DB()
 
-# Setup GPIO for LED
-GPIO.setmode(GPIO.BCM)
-GPIO.setwarnings(False)
-GPIO.setup(18,GPIO.OUT)
+# Objects created
+dbh     = iDHT_DB()
+DHT     = iDHT_DH()
+GPIO    = iDHT_GPIO()
 
 # variables
 cError = "" # get the error string and store it in the db
 #loop on getting data, storing data and blink LED 
-while True:
-    try:
-        temperature_c = temperature_f = humidity = 0
-        GPIO.output(18,GPIO.HIGH)     
-        temperature_c = dhtDevice.temperature
-        humidity = dhtDevice.humidity
-    except RuntimeError as error:
-        # Errors happen fairly often, DHT's are hard to read, just keep going
-        cError = error.args[0]
-        print(cError)
-        time.sleep(2.0)    
-        continue
-    except Exception as error:
-        dhtDevice.exit()
-        raise error
-    except:
-        print(error.args[0])
-    else:
-        temperature_f = temperature_c * (9 / 5) + 32
-        
-        print(
-            "Temp: {:.1f} F / {:.1f} C    Humidity: {}% ".format(
-                temperature_f, temperature_c, humidity
-            ) + " " + GetTimeStamp()
-        )
-        # Add a row of data to the database
-        dbh.add_data(GetTimeStamp(), temperature_f, humidity, 2, cError)
-        # Clear the error string
-        cError = ""
-        
-        #LED goes low for a second
-        GPIO.output(18,GPIO.LOW)
-        time.sleep(2.0)    
-        # End of While True loop
+dbh.print_action_tbl()
+
+DHT.ReadDHT()
+# last 2 parameters are speed and error
+dbh.add_data(GetTimeStamp(), DHT.temp_f, DHT.humidity, 4, "none")
+
+		
+# main route 
+@app.route("/")
+def index():
+	time, temp, hum = dbh.getLastData()
+	templateData = {
+	  'time'		: time,
+      'temp'		: temp,
+      'hum'			: hum,
+      'freq'		: freqSamples,
+      'rangeTime'	: rangeTime
+	}
+	return render_template('index.html', **templateData)
+
+
+@app.route('/', methods=['POST'])
+def my_form_post():
+    global numSamples 
+    global freqSamples
+    global rangeTime
+    ifreqSamples = int(freqSamples.seconds)
+    rangeTime = int (request.form['rangeTime'])
+    if (rangeTime < ifreqSamples):
+        rangeTime = ifreqSamples + 1
+    numSamples = int(round(rangeTime/ifreqSamples))
+    numMaxSamples = maxRowsTable()
+    if (numSamples > numMaxSamples):
+        numSamples = (numMaxSamples-1)
+    
+    time, temp, hum = dbh.getLastData()
+    
+    templateData = {
+	  'time'		: time,
+      'temp'		: temp,
+      'hum'			: hum,
+      'freq'		: freqSamples,
+      'rangeTime'	: rangeTime
+	}
+    return render_template('index.html', **templateData)
+	
+	
+@app.route('/plot/temp')
+def plot_temp():
+	times, temps, hums = getHistData(numSamples)
+	ys = temps
+	fig = Figure()
+	axis = fig.add_subplot(1, 1, 1)
+	axis.set_title("Temperature [°C]")
+	axis.set_xlabel("Samples")
+	axis.grid(True)
+	xs = range(numSamples)
+	axis.plot(xs, ys)
+	canvas = FigureCanvas(fig)
+	output = io.BytesIO()
+	canvas.print_png(output)
+	response = make_response(output.getvalue())
+	response.mimetype = 'image/png'
+	return response
+
+@app.route('/plot/hum')
+def plot_hum():
+	times, temps, hums = getHistData(numSamples)
+	ys = hums
+	fig = Figure()
+	axis = fig.add_subplot(1, 1, 1)
+	axis.set_title("Humidity [%]")
+	axis.set_xlabel("Samples")
+	axis.grid(True)
+	xs = range(numSamples)
+	axis.plot(xs, ys)
+	canvas = FigureCanvas(fig)
+	output = io.BytesIO()
+	canvas.print_png(output)
+	response = make_response(output.getvalue())
+	response.mimetype = 'image/png'
+	return response
+	
+if __name__ == "__main__":
+   app.run(host='0.0.0.0', debug=False)
+

@@ -2,7 +2,7 @@
 	"folders": [
 		{
 			"name": "Adafruit_DHT",
-			"path": "."
+			"path": "/home/pi/Adafruit_DHT/"
 		}
 	],
 	"settings": {}
