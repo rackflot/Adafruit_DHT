@@ -1,8 +1,10 @@
 {
 	"folders": [
 		{
-			"name": "Adafruit_DHT",
-			"path": "/home/pi/Adafruit_DHT/"
+			"path": "."
+		},
+		{
+			"path": "../RPI_Flask_SQLite"
 		}
 	],
 	"settings": {}
