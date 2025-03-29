@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
 import time
+import os
 
 
 class LED_Ctrl:
@@ -26,6 +27,8 @@ class LED_Ctrl:
         # Read Sensors Status
         self.LED_State  = GPIO.input(self.iPin)
         return self.LED_State
+
+script_directory = os.path.dirname(os.path.abspath(__file__))
 
 mf = LED_Ctrl(18)
 

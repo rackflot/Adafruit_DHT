@@ -2,20 +2,17 @@
 import sys
 # import mariadb
 from tabulate import tabulate
-# DB1
-# Connect to MariaDB Platform
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
-import io
+from datetime import datetime
+from MF_Functions import *
+# import io
 import sqlite3
-
-
 
 class iDHT_DB:
     def __init__(self):
         self.conn = 0
         self.curs = 0
         self.MaxRows = 0
+        self.thisdict = {}
                 
         try:
             self.conn = sqlite3.connect('/home/pi/Adafruit_DHT/FanData.db', check_same_thread = False)
@@ -27,11 +24,8 @@ class iDHT_DB:
             sys.exit(1)
 # ------------------------------------------------------------------------------ 
  
-   
 # ------------------------------------------------------------------------------
-
     def print_action_tbl(self):
-        iTotalRows = 0
         sql = "SELECT * FROM fan_data"
         self.curs.execute(sql)
         myresult = self.curs.fetchall()
@@ -48,6 +42,7 @@ class iDHT_DB:
         except Exception as e:
             print (f"Error adding entry to databases {e}") 
 # ------------------------------------------------------------------------------
+
 # Get all rows in database and print them.
     def get_data(self):
         try:
@@ -60,15 +55,15 @@ class iDHT_DB:
                 print (row, sep=' ')        
         except Exception as e:
             print(f"Error retrieving entry from database: {e}")
-
 # ------------------------------------------------------------------------------
+
 # Get Max number of rows (table size)
     def maxRowsTable(self):
         for row in self.curs.execute("select COUNT(temp) from fan_data"):
             maxNumberRows=row[0]
         return maxNumberRows
-
 # ------------------------------------------------------------------------------
+
 # Retrieve LAST data record from database
     def getLastData(self):
         for row in self.curs.execute("SELECT * FROM fan_data ORDER BY timestamp DESC LIMIT 1"):
@@ -77,12 +72,18 @@ class iDHT_DB:
             hum = row[2]
         #conn.close()
         return time, temp, hum
-
 # ------------------------------------------------------------------------------
+
 # Get 'x' samples of historical data
-    def getHistData (self, numSamples):
+    def getHistData (self, numSamples):        
+        self.thisdict = {}
+        for row in self.curs.execute("SELECT * FROM fan_data ORDER BY timestamp DESC LIMIT "+str(numSamples)):
+            time = text_to_epoch(row[0], "%a %d%b%y %I:%M:%S %p")
+            temp = round(row[1],2) #row[1]
+            self.thisdict.update({time:temp})
+        return self.thisdict
         
-        self.curs.execute("SELECT * FROM fan_data ORDER BY timestamp DESC LIMIT "+str(numSamples))
+        '''
         data = self.curs.fetchall()
         dates = []
         temps = []
@@ -93,7 +94,7 @@ class iDHT_DB:
             hums.append(row[2])
             temps, hums = self.testeData(temps, hums)
         return dates, temps, hums
-    
+        '''
 # ------------------------------------------------------------------------------
 # Test data for cleanning possible "out of range" values
     def testeData(self, temps, hums):
@@ -108,16 +109,11 @@ class iDHT_DB:
 # ------------------------------------------------------------------------------
 # Get Max number of rows (table size)
 def maxRowsTable(self):
-	for row in self.curs.execute("select COUNT(temp) from fan_data"):
-		maxNumberRows=row[0]
-	return maxNumberRows
+    for row in self.curs.execute("select COUNT(temp) from fan_data"):
+        maxNumberRows=row[0]
+    return maxNumberRows
 
 
-
-# ------------------------------------------------------------------------------
-
-
-# ------------------------------------------------------------------------------
 
 # ------------------------------------------------------------------------------
 

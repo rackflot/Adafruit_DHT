@@ -19,6 +19,24 @@ def GetTimeStamp():
     return date_time.strftime("%a %d%b%y %I:%M:%S %p")    
 
 
+# ------------------------------------------------------------------------------
+def text_to_epoch(date_time_str, format_str):
+    """Converts a text date and time to epoch time.
+
+    Args:
+        date_time_str: The date and time string to convert.
+        format_str: The format string that corresponds to the date_time_str.
+
+    Returns:
+        The epoch time (Unix timestamp) as an integer.
+    """
+    datetime_obj = datetime.strptime(date_time_str, format_str)
+    # epoch_time = int(mftime.mktime(datetime_obj.timetuple()))
+    unix_timestamp = datetime.timestamp(datetime_obj)*1000
+      
+    return unix_timestamp   
+
+# ------------------------------------------------------------------------------
 
 #def GetDHTDate
 # Return CPU temperature as a character string                                      

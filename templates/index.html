@@ -1,74 +1,68 @@
-<!doctype html>
+<!DOCTYPE HTML>
 <html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>CanvasJS Chart Python Flask Sample</title>
+        <script type="text/javascript" src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+        <script type="text/javascript">            
+            window.onload = function() {
+                var dps = [
+                            {% for key,value in data.items() %}
+                                { x:{{key}}, y: {{value}} },
+                                //{ x: new Date({{key}}), y: {{value}} },
+                            {% endfor %}
+                ];
+                //console.log(dps)
+                var chart = new CanvasJS.Chart("chartContainer", {
+                    title:{
+                        text: "MF Attic Fan Monitor and Control"              
+                    },
+                    axisX:{  
+                        //Try Changing to MMMM
+                        title: "Time",
+                        valueFormatString: "HH:mm:ss DDMMMYY",
+                        gridThickness: 1,
+                        interlacedColor: "#F0F8FF" 
+                    },
+                    data: [{              
+                        // Change type to "doughnut", "line", "splineArea", etc.
+                        type: "line",                        
+                        ValueFormatString: "HH:mm:ss DDMMMYY", 
+                        xValueFormatString: "HH:mm:ss DDMMMYY",
+                        xValueType: "dateTime",
+                        dataPoints: dps
+                    }]
+                    
+                });
+                chart.render();
 
-<head>
-    <title>DHT Data Sensor </title>
-    <link rel="stylesheet" href='../static/style.css'/>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <style>
-		body {
-			text-align: center;
-		}
-
-		#g1,
-		#g2 {
-			width: 200px;
-			height: 160px;
-			display: inline-block;
-			margin: 1em;
-		}
-
-    </style>
-</head>
-
-<body>
-	<h1>DHT Sensor Data </h1>
-    <div id="g1"></div>
-    <div id="g2"></div>
-    <hr>
-	<h3> Last Sensors Reading: {{ time }} ==> <a href="/"class="button">REFRESH</a></h3>	
-	<hr>
-	<h3> HISTORICAL DATA </h3>
-		<p> Enter range of time to be retrieved in minutes (Sample Frequency: {{ freq }} minutes)
-		<form method="POST">
-			<input name="rangeTime" value= {{rangeTime}}>
-			<input type="submit">
-		</form></p>
-		<hr>
-		<img src="/plot/temp" alt="Image Placeholder" width="49%">
-		<img src="/plot/hum" alt="Image Placeholder" width="49%">
-	
-	<p> @2018 Developed by MJRoBot.org</p>
-    
-    <script src="../static/raphael-2.1.4.min.js"></script>
-    <script src="../static/justgage.js"></script>
-    <script>
-		var g1, g2;
-		document.addEventListener("DOMContentLoaded", function(event) {
-			g1 = new JustGage({
-				id: "g1",
-				value: {{temp}},
-				valueFontColor: "yellow",
-				titleFontColor: "yellow",
-				min: -10,
-				max: 80,
-				title: "Temperature",
-				label: "Farenheit"
-			});
-
-			g2 = new JustGage({
-				id: "g2",
-				value: {{hum}},
-				valueFontColor: "yellow",
-				titleFontColor: "yellow",
-				min: 0,
-				max: 100,
-				title: "Humidity",
-				label: "%"
-			});
-
-		});
-    </script>
-</body>
-
+                function getData() {
+                    fetch("/get_cart_rate")
+                    .then(response => response.json())
+                    .then(data => {
+                        dps = [];
+                        //console.log(data);
+                        for (var key in data) {
+                            dps.push({ x: key, y: data[key] });
+                            //console.log(key, data[key]);
+                        }
+                    })
+                        chart.data[0].set("dataPoints", dps);
+                        //console.log(dps);
+                        setTimeout(getData, 4000);
+                    };
+            
+                setTimeout(getData, 2000); 
+            
+                
+            }
+            //console.log()
+        </script>
+        <style type="text/css">
+        </style>
+    </head>
+    <body>
+        <div id="chartContainer" style="width: 100%; height: 300px;"></div>
+    </body>
 </html>

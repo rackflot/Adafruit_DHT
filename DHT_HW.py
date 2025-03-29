@@ -7,9 +7,10 @@ import sys
 from DHT_DB import *
 from MF_Functions import *
 import RPi.GPIO as GPIO
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
+# from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+# from matplotlib.figure import Figure
 import io
+import random
 
 # Initialize the GPIO class
 class iDHT_GPIO:
@@ -43,21 +44,30 @@ class iDHT_DH:
     #dhtDevice = adafruit_dht.DHT22(board.D4, use_pulseio=False)
     
     def ReadDHT(self):
+
         # variables
     #loop on getting data, storing data and blink LED 
-        try:            
+#        try:            
             GPIO.output(18,GPIO.HIGH)     
+            self.temp_c = random.randint(0, 9)      
+            self.temp_f = random.randint(0, 9)            
+            GPIO.output(18,GPIO.LOW)     
+            print("ReadDHT done")
+            '''
             self.temp_c     = self.dhtDevice.temperature
             self.temp_f     = self.temp_c * (9 / 5) + 32
             self.humidity   = self.dhtDevice.humidity
-        except RuntimeError as error:
+            
+            ''' 
+
+'''        except RuntimeError as error:
             # Errors happen fairly often, DHT's are hard to read, just keep going
             self.DHT_Error = error.args[0]
             print(self.DHT_Error)
             # time.sleep(2.0)    
         #continue
         except Exception as error:
-            dhtDevice.exit()
+            #dhtDevice.exit()
             self.DHT_Error = error.args[0]
             raise error
         except:
@@ -71,3 +81,4 @@ class iDHT_DH:
                     temperature_f, temperature_c, humidity
                 ) + " " + GetTimeStamp()
             )
+'''
