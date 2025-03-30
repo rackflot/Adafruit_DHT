@@ -37,7 +37,7 @@ dbh.getHistData(5)
 #curs = conn.cursor()         
 
 thisdict = {}
-for row in curs.execute("SELECT * FROM fan_data ORDER BY ti/mestamp DESC LIMIT 5"):
+for row in curs.execute("SELECT * FROM fan_data ORDER BY timestamp DESC LIMIT 5"):
     time = dbh.text_to_epoch(row[0], "%a %d%b%y %I:%M:%S %p")
     temp = round(row[1],2) #row[1]
     thisdict.update({time:temp})
