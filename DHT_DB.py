@@ -33,14 +33,15 @@ class iDHT_DB:
  # ------------------------------------------------------------------------------       
  
     def add_data(self, timestamp, temp, hum, speed, error):
-        try:
-            statement = "INSERT INTO fan_data (timestamp, temp, hum, speed, error) VALUES (?,?,?,?,?)"
-            data = (timestamp, temp, hum, speed, error)
-            self.curs.execute(statement, data)
-            self.conn.commit()
-            print(timestamp + " " + str(temp) + " successfully added to database")
-        except Exception as e:
-            print (f"Error adding entry to databases {e}") 
+        statement = "INSERT INTO fan_data (timestamp, temp, hum, speed, error) VALUES (?,?,?,?,?)"
+        data = (timestamp, temp, hum, speed, error)
+#    try:
+#        with self.curs:
+#            self.curs.execute(statement, data)
+#    except Exception as e:
+#        print (f"Error adding entry to databases {e}")
+    self.conn.commit()
+    print(timestamp + " " + str(temp) + " successfully added to database") 
 # ------------------------------------------------------------------------------
 
 # Get all rows in database and print them.
